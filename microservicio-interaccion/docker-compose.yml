@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  # Base de datos MySQL
+  mysql-interaccion:
+    image: mysql:8.0
+    container_name: mysql-interaccion
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_DATABASE: DB_interaccion
+      MYSQL_USER: chapinflix
+      MYSQL_PASSWORD: chapinflix123
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - chapinflix-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  # Microservicio de Interacción
+  ms-interaccion:
+    build: .
+    container_name: ms-interaccion
+    restart: unless-stopped
+    ports:
+      - "3002:3002"
+    environment:
+      NODE_ENV: development
+      PORT: 3002
+      HOST: 0.0.0.0
+      DB_HOST: mysql-interaccion
+      DB_PORT: 3306
+      DB_USER: chapinflix
+      DB_PASSWORD: chapinflix123
+      DB_NAME: DB_interaccion
+      CORS_ORIGIN: "*"
+    depends_on:
+      mysql-interaccion:
+        condition: service_healthy
+    networks:
+      - chapinflix-network
+    volumes:
+      - ./src:/app/src
+      - /app/node_modules
+
+networks:
+  chapinflix-network:
+    driver: bridge
+
+volumes:
+  mysql_data:
