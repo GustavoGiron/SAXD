@@ -1,30 +1,31 @@
-const sql = require('mssql');
+const mysql = require('mysql2/promise');
 const logger = require('../utils/logger');
 
 const config = {
-  server: process.env.DB_SERVER,
-  port: parseInt(process.env.DB_PORT),
+  host: process.env.DB_HOST || 'localhost',
+  port: parseInt(process.env.DB_PORT) || 3306,
   database: process.env.DB_DATABASE,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
-  options: {
-    encrypt: process.env.DB_ENCRYPT === 'true',
-    trustServerCertificate: process.env.DB_TRUST_SERVER_CERTIFICATE === 'true',
-    enableArithAbort: true
-  },
-  pool: {
-    max: 11,
-    min: 0,
-    idleTimeoutMillis: 30000
-  }
+  waitForConnections: true,
+  connectionLimit: 11,
+  queueLimit: 0,
+  enableKeepAlive: true,
+  keepAliveInitialDelay: 0
 };
 
 let pool;
 
 async function connectDatabase() {
   try {
-    pool = await sql.connect(config);
-    logger.info('Connected to SQL Server');
+    pool = mysql.createPool(config);
+    
+    // Verificar conexión
+    const connection = await pool.getConnection();
+    await connection.ping();
+    connection.release();
+    
+    logger.info('Connected to MySQL Server');
     return pool;
   } catch (error) {
     logger.error('Database connection failed:', error);
@@ -42,5 +43,5 @@ function getPool() {
 module.exports = {
   connectDatabase,
   getPool,
-  sql
+  mysql
 };
