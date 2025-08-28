@@ -1,9 +1,6 @@
 version: '3.8'
 
 services:
-  # ============================================================
-  # BASE DE DATOS PARA MICROSERVICIO USUARIOS
-  # ============================================================
   mysql-usuarios:
     image: mysql:8.0
     container_name: mysql-usuarios
@@ -24,10 +21,7 @@ services:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       timeout: 20s
       retries: 10
-
-  # ============================================================
-  # BASE DE DATOS PARA MICROSERVICIO CATALOGO
-  # ============================================================
+  
   mysql-catalogo:
     image: mysql:8.0
     container_name: mysql-catalogo
@@ -49,9 +43,6 @@ services:
       timeout: 20s
       retries: 10
 
-  # ============================================================
-  # BASE DE DATOS PARA MICROSERVICIO INTERACCION
-  # ============================================================
   mysql-interaccion:
     image: mysql:8.0
     container_name: mysql-interaccion
@@ -73,9 +64,6 @@ services:
       timeout: 20s
       retries: 10
 
-  # ============================================================
-  # MICROSERVICIO DE USUARIOS (Control y Autenticación)
-  # ============================================================
   ms-usuarios:
     build:
       context: ./Usuario-ControlUsuarios/auth_service
@@ -108,9 +96,6 @@ services:
       - ./Usuario-ControlUsuarios/auth_service:/app
       - /app/node_modules
 
-  # ============================================================
-  # MICROSERVICIO DE CATÁLOGO
-  # ============================================================
   ms-catalogo:
     build:
       context: ./backend/servicio_catalogo
@@ -142,9 +127,6 @@ services:
       - /app/node_modules
       - ./backend/servicio_catalogo/uploads:/app/uploads
 
-  # ============================================================
-  # MICROSERVICIO DE INTERACCIÓN
-  # ============================================================
   ms-interaccion:
     build:
       context: ./microservicio-interaccion
@@ -185,9 +167,6 @@ services:
       - ./microservicio-interaccion/src:/app/src
       - /app/node_modules
 
-  # ============================================================
-  # API GATEWAY (NGINX)
-  # ============================================================
   nginx-gateway:
     image: nginx:alpine
     container_name: nginx-gateway
@@ -204,9 +183,6 @@ services:
     networks:
       - chapinflix-network
 
-# ============================================================
-# REDES
-# ============================================================
 networks:
   chapinflix-network:
     driver: bridge
@@ -214,9 +190,6 @@ networks:
       config:
         - subnet: 172.25.0.0/16
 
-# ============================================================
-# VOLÚMENES PERSISTENTES
-# ============================================================
 volumes:
   mysql_usuarios_data:
     driver: local
