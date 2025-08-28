@@ -4,9 +4,25 @@ import { LoginCredentials, RegisterData, User } from '../types';
 class AuthService {
   async login(credentials: LoginCredentials) {
     const response = await apiService.getAuthApi().post('/api/auth/login', credentials);
+    
     if (response.data.token) {
       localStorage.setItem('token', response.data.token);
-      localStorage.setItem('user', JSON.stringify(response.data.usuario));
+      
+      // Como el backend no retorna el usuario completo, 
+      // guardamos la info básica del token
+      const tokenPayload = this.parseJwt(response.data.token);
+      const user = {
+        id: tokenPayload.id,
+        nombre_usuario: tokenPayload.nombre_usuario,
+        tipo_suscripcion: tokenPayload.tipo_suscripcion
+      };
+      
+      localStorage.setItem('user', JSON.stringify(user));
+      
+      return {
+        ...response.data,
+        usuario: user
+      };
     }
     return response.data;
   }
@@ -24,6 +40,7 @@ class AuthService {
   logout() {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    localStorage.removeItem('selectedProfile');
   }
 
   getCurrentUser(): User | null {
@@ -33,6 +50,15 @@ class AuthService {
 
   isAuthenticated(): boolean {
     return !!localStorage.getItem('token');
+  }
+
+  // Helper para decodificar el JWT
+  private parseJwt(token: string) {
+    try {
+      return JSON.parse(atob(token.split('.')[1]));
+    } catch (e) {
+      return null;
+    }
   }
 }
 

@@ -1,7 +1,7 @@
 export const API_ENDPOINTS = {
-  AUTH: import.meta.env.VITE_AUTH_SERVICE || 'http://localhost:3000',
-  INTERACTION: import.meta.env.VITE_INTERACTION_SERVICE || 'http://localhost:3002',
-  API_GATEWAY: import.meta.env.VITE_API_URL || 'http://localhost:8080'
+  AUTH: import.meta.env.VITE_API_URL || 'http://localhost',
+  INTERACTION: import.meta.env.VITE_API_URL || 'http://localhost',
+  API_GATEWAY: import.meta.env.VITE_API_URL || 'http://localhost'
 };
 
 export const ROUTES = {

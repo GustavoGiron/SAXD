@@ -6,15 +6,18 @@ class ApiService {
   private interactionApi: any;
 
   constructor() {
+    // Todos los servicios apuntan al API Gateway
+    const API_GATEWAY = import.meta.env.VITE_API_URL || 'http://localhost';
+    
     this.authApi = axios.create({
-      baseURL: API_ENDPOINTS.AUTH,
+      baseURL: API_GATEWAY,
       headers: {
         'Content-Type': 'application/json',
       },
     });
 
     this.interactionApi = axios.create({
-      baseURL: API_ENDPOINTS.INTERACTION,
+      baseURL: API_GATEWAY,
       headers: {
         'Content-Type': 'application/json',
       },
@@ -33,6 +36,7 @@ class ApiService {
     this.interactionApi.interceptors.request.use(addAuthToken);
   }
 
+  // ESTOS SON LOS MÉTODOS QUE FALTABAN
   getAuthApi() {
     return this.authApi;
   }
